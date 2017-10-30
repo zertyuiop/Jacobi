@@ -1,23 +1,14 @@
 class Jacobi
   require 'nmatrix'
   require 'pp'
-  N = 20
-  Alpha = 0.04
-  Eps = 0.000001
+  N, Alpha, Eps = 20, 0.04, 0.000001
   pp Alpha
   mat = NMatrix.zeros(N)
-  for i in 0..N-1
-    for j in 0..N-1
-      for k in 0..N-1
-        mat[i, j] = mat[i, j] + (Alpha * (k + 1)) ** (i + j)
-      end
-    end
-  end
+  N.times {|i| N.times {|j| N.times {|k| mat[i, j] += (Alpha * (k + 1)) ** (i + j)}}}
   mat[0, 0] = 21
   pp mat
-  loop do
-    for k in 1..N-1
-      for l in 0..k-1
+  begin
+    1.upto(N-1) do |k| k.times do |l|
         if ((mat[k,k] - mat[l, l]) == 0)
           c = s = 0.5 ** 0.5
         else
@@ -25,26 +16,12 @@ class Jacobi
           c = (0.5 * (1 + 1.0 / (1 + mu ** 2) ** 0.5)) ** 0.5
           s = (mu.abs/mu) * (1 - c ** 2) ** 0.5
         end
-        tmp = NMatrix.zeros(N)
-        for i in 0..N-1
-          tmp[i, i] = 1
-        end
-        tmp[k, k] = c
-        tmp[k, l] = -s
-        tmp[l, k] = s
-        tmp[l, l] = c
+        tmp, tmp[k, k], tmp[k, l], tmp[l, k], tmp[l, l] = NMatrix.eye(N), c, -s, s, c
         mat = tmp.transpose.dot(mat).dot(tmp)
       end
     end
     ma = 0
-    for i in 0..N-1
-      for j in 0..N-1
-        if ((mat[i, j].abs >= ma) && (i != j))
-          ma = mat[i, j]
-        end
-      end
-    end
-    break if ma < eps
-  end
+    N.times {|i| N.times {|j| ma = mat[i, j] if ((mat[i, j].abs >= ma) && (i != j))}}
+  end until ma < Eps
   pp mat
 end
