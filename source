@@ -2,7 +2,6 @@ class Jacobi
   require 'nmatrix'
   require 'pp'
   N, Alpha, Eps = 20, 0.04, 0.000001
-  pp Alpha
   mat = NMatrix.zeros(N)
   N.times {|i| N.times {|j| N.times {|k| mat[i, j] += (Alpha * (k + 1)) ** (i + j)}}}
   mat[0, 0] = 21
